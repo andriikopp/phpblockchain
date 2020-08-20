@@ -3,6 +3,8 @@ require_once(__DIR__.'/../blockchain.php');
 
 $testchain = new BlockChain();
 
-$testchain->pushData(json_encode(["balance" => 500]));
+echo $testchain->pushData(json_encode(["balance" => 500]));
+echo $testchain->pushData(json_encode(["balance" => 100]));
+echo $testchain->pushData(json_encode(["balance" => 1000]));
 
-echo json_encode($testchain, JSON_PRETTY_PRINT);
+echo $testchain->getAllBlocks();
