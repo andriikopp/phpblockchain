@@ -9,10 +9,10 @@ class BlockChain
     /**
      * Instantiates a new Blockchain.
      */
-    public function __construct()
+    public function __construct($name)
     {
         $this->difficulty = 4;
-        $this->filename = "blockchain.idx";
+        $this->filename = $name . ".idx";
         $this->chain = [];
 
         if (!file_exists($this->filename)) {
@@ -67,7 +67,7 @@ class BlockChain
     /**
      * Gets the data of all blocks of the chain.
      */
-    public function getAllBlocks()
+    public function getAllBlocksData()
     {
         $contents = file_get_contents($this->filename);
         $this->chain = unserialize($contents);
