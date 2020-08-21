@@ -1,3 +1,2 @@
-
-tests/blockchain.idx
-*.idx
+tmp/
+store/

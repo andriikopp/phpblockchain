@@ -12,7 +12,7 @@ class BlockChain
     public function __construct($name)
     {
         $this->difficulty = 4;
-        $this->filename = $name . ".idx";
+        $this->filename = $name;
         $this->chain = [];
 
         if (!file_exists($this->filename)) {
@@ -32,22 +32,22 @@ class BlockChain
         $contents = file_get_contents($this->filename);
         $this->chain = unserialize($contents);
 
-        $index = $this->getLastBlock()->index + 1;
-        $this->push(new Block($index, strtotime("now"), $data));
-
-        if ($this->isValid()) {
-            $serialized = serialize($this->chain);
-            file_put_contents($this->filename, $serialized, LOCK_EX);
-
+        if ($this->chain == FALSE) {
             return json_encode([
-                "status" => "success",
-                "message" => "Block pushed successfully"
+                "status" => "error",
+                "message" => "Unable to read blockchain"
             ]);
         }
 
+        $index = $this->getLastBlock()->index + 1;
+        $this->push(new Block($index, strtotime("now"), $data));
+
+        $serialized = serialize($this->chain);
+        file_put_contents($this->filename, $serialized, LOCK_EX);
+
         return json_encode([
-            "status" => "error",
-            "message" => "Blockchain is compromised"
+            "status" => "success",
+            "message" => "Block pushed successfully"
         ]);
     }
 
@@ -59,9 +59,16 @@ class BlockChain
         $contents = file_get_contents($this->filename);
         $this->chain = unserialize($contents);
 
+        if ($this->chain == FALSE) {
+            return json_encode([
+                "status" => "error",
+                "message" => "Unable to read blockchain"
+            ]);
+        }
+
         $last = $this->getLastBlock()->data;
 
-        return json_encode(["lastBlock" => $last]);
+        return json_encode(["status" => "success", "lastBlock" => $last]);
     }
 
     /**
@@ -72,13 +79,48 @@ class BlockChain
         $contents = file_get_contents($this->filename);
         $this->chain = unserialize($contents);
 
+        if ($this->chain == FALSE) {
+            return json_encode([
+                "status" => "error",
+                "message" => "Unable to read blockchain"
+            ]);
+        }
+
         $data = [];
 
         for ($i = 0; $i < count($this->chain); $i++) {
             array_push($data, $this->chain[$i]->data);
         }
 
-        return json_encode(["allBlocks" => $data]);
+        return json_encode(["status" => "success", "allBlocks" => $data]);
+    }
+
+    /**
+     * Validates the blockchain's integrity.
+     */
+    public function validateBlockchain()
+    {
+        $contents = file_get_contents($this->filename);
+        $this->chain = unserialize($contents);
+
+        if ($this->chain == FALSE) {
+            return json_encode([
+                "status" => "error",
+                "message" => "Unable to read blockchain"
+            ]);
+        }
+
+        if (!$this->isValid()) {
+            return json_encode([
+                "status" => "error",
+                "message" => "Blockchain is compromised"
+            ]);
+        }
+
+        return json_encode([
+            "status" => "success",
+            "message" => "Blockchain is valid"
+        ]);
     }
     // ------------------------- /API -------------------------
 

@@ -2,10 +2,31 @@
 require_once("blockchain/blockchain.php");
 
 $_STORE_PATH = "store/";
+$_TEMP_PATH = "tmp/";
 
 if (isset($_GET["action"])) {
     if (isset($_GET["hash"])) {
-        if ($_GET["action"] == "push" && isset($_GET["data"])) {
+        if ($_GET["action"] == "sync" && isset($_GET["raw"])) {
+            file_put_contents($_TEMP_PATH . $_GET["hash"], $_GET["raw"], LOCK_EX);
+            $blockchain = new BlockChain($_TEMP_PATH . $_GET["hash"]);
+            $isValid = $blockchain->validateBlockchain();
+
+            if (json_decode($isValid)->status == "success") {
+                file_put_contents($_STORE_PATH . $_GET["hash"], $_GET["raw"], LOCK_EX);
+            }
+
+            unlink($_TEMP_PATH . $_GET["hash"]);
+            echo $isValid;
+        } else if ($_GET["action"] == "raw") {
+            $blockchain = new BlockChain($_STORE_PATH . $_GET["hash"]);
+            $isValid = $blockchain->validateBlockchain();
+
+            if (json_decode($isValid)->status == "success") {
+                echo file_get_contents($_STORE_PATH . $_GET["hash"]);
+            } else {
+                echo $isValid;
+            }
+        } else if ($_GET["action"] == "push" && isset($_GET["data"])) {
             $blockchain = new BlockChain($_STORE_PATH . $_GET["hash"]);
             echo $blockchain->pushData($_GET["data"]);
         } else if ($_GET["action"] == "last") {
