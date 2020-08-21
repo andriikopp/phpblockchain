@@ -26,8 +26,8 @@ if (isset($_GET["action"])) {
 
             for ($i = 0; $i < count($_PEERS); $i++) {
                 file_get_contents($_PEERS[$i]
-                    . "api.php?action=sync&hash=" . $_GET["hash"] . "&raw="
-                    . urlencode($raw)
+                    . "api.php?action=sync&hash=" . $_GET["hash"]
+                    . "&raw=" . urlencode($raw)
                 );
             }
         } else if ($_GET["action"] == "last") {
