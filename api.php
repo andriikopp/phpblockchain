@@ -1,5 +1,6 @@
 <?php
 require_once("blockchain/blockchain.php");
+require_once("peers.php");
 
 $_STORE_PATH = "store/";
 $_TEMP_PATH = "tmp/";
@@ -17,18 +18,18 @@ if (isset($_GET["action"])) {
 
             unlink($_TEMP_PATH . $_GET["hash"]);
             echo $isValid;
-        } else if ($_GET["action"] == "raw") {
-            $blockchain = new BlockChain($_STORE_PATH . $_GET["hash"]);
-            $isValid = $blockchain->validateBlockchain();
-
-            if (json_decode($isValid)->status == "success") {
-                echo file_get_contents($_STORE_PATH . $_GET["hash"]);
-            } else {
-                echo $isValid;
-            }
         } else if ($_GET["action"] == "push" && isset($_GET["data"])) {
             $blockchain = new BlockChain($_STORE_PATH . $_GET["hash"]);
             echo $blockchain->pushData($_GET["data"]);
+
+            $raw = file_get_contents($_STORE_PATH . $_GET["hash"]);
+
+            for ($i = 0; $i < count($_PEERS); $i++) {
+                file_get_contents($_PEERS[$i]
+                    . "api.php?action=sync&hash=" . $_GET["hash"] . "&raw="
+                    . urlencode($raw)
+                );
+            }
         } else if ($_GET["action"] == "last") {
             $blockchain = new BlockChain($_STORE_PATH . $_GET["hash"]);
             echo $blockchain->getLastBlockData();
