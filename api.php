@@ -1,4 +1,6 @@
 <?php
+header("Access-Control-Allow-Origin: *");
+
 require_once("blockchain/blockchain.php");
 require_once("peers.php");
 
